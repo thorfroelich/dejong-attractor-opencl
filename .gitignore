@@ -1,0 +1,34 @@
+# Mac OS X
+*.DS_Store
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+
+# Generated files
+build/
+#*.[oa]
+*.pyc
+.cache
+
+# Backup files
+*~.nib
+*.orig
+~*
+*.bak
+SlenderBackup*
+
+# Localizer script
+*.strings.old
+*.strings.new
+
+# Temporary files
+*.sqlite-journal
+Manager/Assets/Layout Engine/audrey.jpeg
+Manager/Assets/Layout Engine/kim.jpeg
+Manager/Assets/Layout Engine/natalie.png
