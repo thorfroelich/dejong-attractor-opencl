@@ -10,6 +10,10 @@ import Foundation
 import OpenCL
 //import GLKit
 
+func randomFloat() -> Float {
+    return Float(arc4random()) /  Float(UInt32.max)
+}
+
 var numParticles: Int = (1024 * 1024 * 4)
 var sensitivity: Float = 0.003
 var N: Int = 1000
@@ -74,11 +78,9 @@ class Attractor {
                 self.shouldResetParticles = false
                 
                 var particles = [Particle]()
-                while (particles.count < numParticles) {
-                    particles += Particle(
-                        x: (Float)(arc4random_uniform(200) - 100) / 100.0,
-                        y: (Float)(arc4random_uniform(200) - 100) / 100.0,
-                        z: (Float)(arc4random_uniform(200) - 100) / 100.0)
+                for i in 0...numParticles {
+                    let p = Particle(x: (randomFloat() * fN), y: (randomFloat() * fN), z: (randomFloat() * fN))
+                    particles.append(p)
                 }
                 
                 var particlesBuffer = gcl_malloc(UInt(sizeof(Particle) * numParticles), &particles, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
