@@ -12,6 +12,8 @@
 		4311AF5C1A4CAB52007A0A93 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4311AF5B1A4CAB52007A0A93 /* Images.xcassets */; };
 		4311AF5F1A4CAB52007A0A93 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4311AF5D1A4CAB52007A0A93 /* Main.storyboard */; };
 		4311AF6B1A4CAB52007A0A93 /* AttractorCLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4311AF6A1A4CAB52007A0A93 /* AttractorCLTests.swift */; };
+		4311AF771A4CAC0F007A0A93 /* Attractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4311AF751A4CAC0F007A0A93 /* Attractor.swift */; };
+		4311AF7F1A4CB1BC007A0A93 /* attractor.cl in Sources */ = {isa = PBXBuildFile; fileRef = 4311AF741A4CAC0F007A0A93 /* attractor.cl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +36,9 @@
 		4311AF641A4CAB52007A0A93 /* AttractorCLTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AttractorCLTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4311AF691A4CAB52007A0A93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4311AF6A1A4CAB52007A0A93 /* AttractorCLTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttractorCLTests.swift; sourceTree = "<group>"; };
+		4311AF741A4CAC0F007A0A93 /* attractor.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = attractor.cl; sourceTree = "<group>"; };
+		4311AF751A4CAC0F007A0A93 /* Attractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attractor.swift; sourceTree = "<group>"; };
+		43F8F4BB1A4CB692006FC8C5 /* AttractorCL-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AttractorCL-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,11 +80,14 @@
 		4311AF541A4CAB52007A0A93 /* AttractorCL */ = {
 			isa = PBXGroup;
 			children = (
+				4311AF741A4CAC0F007A0A93 /* attractor.cl */,
+				4311AF751A4CAC0F007A0A93 /* Attractor.swift */,
 				4311AF571A4CAB52007A0A93 /* AppDelegate.swift */,
 				4311AF591A4CAB52007A0A93 /* ViewController.swift */,
 				4311AF5B1A4CAB52007A0A93 /* Images.xcassets */,
 				4311AF5D1A4CAB52007A0A93 /* Main.storyboard */,
 				4311AF551A4CAB52007A0A93 /* Supporting Files */,
+				43F8F4BB1A4CB692006FC8C5 /* AttractorCL-Bridging-Header.h */,
 			);
 			path = AttractorCL;
 			sourceTree = "<group>";
@@ -209,6 +217,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4311AF5A1A4CAB52007A0A93 /* ViewController.swift in Sources */,
+				4311AF7F1A4CB1BC007A0A93 /* attractor.cl in Sources */,
+				4311AF771A4CAC0F007A0A93 /* Attractor.swift in Sources */,
 				4311AF581A4CAB52007A0A93 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -324,10 +334,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = AttractorCL/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AttractorCL/AttractorCL-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -335,10 +348,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = AttractorCL/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AttractorCL/AttractorCL-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -397,6 +412,7 @@
 				4311AF701A4CAB52007A0A93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4311AF711A4CAB52007A0A93 /* Build configuration list for PBXNativeTarget "AttractorCLTests" */ = {
 			isa = XCConfigurationList;
@@ -405,6 +421,7 @@
 				4311AF731A4CAB52007A0A93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
