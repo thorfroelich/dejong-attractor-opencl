@@ -8,11 +8,10 @@
 
 import Cocoa
 
-var sensitivity: Float = 0.6
-
 class ViewController: NSViewController {
 
     @IBOutlet weak var imageView: NSImageView!
+    @IBOutlet weak var sensitivitySlider: NSSlider!
     @IBOutlet weak var parameterSliderA: NSSlider!
     @IBOutlet weak var parameterSliderB: NSSlider!
     @IBOutlet weak var parameterSliderC: NSSlider!
@@ -37,6 +36,7 @@ class ViewController: NSViewController {
     
     func updateAttractorFromSliders() {
         
+        let sensitivity = self.sensitivitySlider.floatValue
         self.attractor.parameterA = (self.parameterSliderA.floatValue * sensitivity)
         self.attractor.parameterB = (self.parameterSliderB.floatValue * sensitivity)
         self.attractor.parameterC = (self.parameterSliderC.floatValue * sensitivity)
@@ -44,7 +44,9 @@ class ViewController: NSViewController {
         
         self.attractor.initializeCL()
         
-        self.attractor.updateParticles()
+        for i in 0...100 {
+            self.attractor.updateParticles()
+        }
         
         self.attractor.imageFromBuffer { (image: NSImage) -> Void in
             println("Setting image")

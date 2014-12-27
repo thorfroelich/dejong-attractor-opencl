@@ -115,10 +115,10 @@ class Attractor {
             
             // Create and upload current parameters
             var parameters = [cl_float](count: 8, repeatedValue: 0.0)
-            parameters[0] = self.parameterA * sensitivity
-            parameters[1] = self.parameterB * sensitivity
-            parameters[2] = self.parameterC * sensitivity
-            parameters[3] = self.parameterD * sensitivity
+            parameters[0] = self.parameterA
+            parameters[1] = self.parameterB
+            parameters[2] = self.parameterC
+            parameters[3] = self.parameterD
             parameters[4] = fN
             var parametersBuffer = gcl_malloc(UInt(sizeof(cl_float) * 8), &parameters, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
             self.parametersPointer = COpaquePointer(parametersBuffer)
@@ -184,16 +184,6 @@ class Attractor {
                     
                     var hsv = HSVColor(h: Int(hue * 255.0), s: Int(saturation * 255.0), v: Int(brightness * 255.0))
                     var rgb = Attractor.HSBToRGB(hsv)
-                    
-//                    // Use currently rendered pixel value to soflight blend the new one
-//                    var currentPixel = [Int](count: 4, repeatedValue: Int(0))
-//                    self.currentBitmapRep.getPixel(&currentPixel, atX: x, y: y)
-//                    
-//                    var pixel = [Int](count: 4, repeatedValue: Int(0))
-//                    pixel[0] = (rgb.r + currentPixel[0]) / 2
-//                    pixel[1] = (rgb.g + currentPixel[1]) / 2
-//                    pixel[2] = (rgb.b + currentPixel[2]) / 2
-//                    pixel[3] = 255
 
                     var pixel = [Int](count: 4, repeatedValue: Int(0))
                     pixel[0] = rgb.r
