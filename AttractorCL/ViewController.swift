@@ -10,8 +10,13 @@ import Cocoa
 
 class ViewController: NSViewController {
 
+    @IBOutlet weak var imageView: NSImageView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        var attractor = Attractor()
+        attractor.initializeCL()
     }
 
     override var representedObject: AnyObject? {

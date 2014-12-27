@@ -1,4 +1,4 @@
-__kernel void attractor (
+kernel void attractor (
                       const __global float8 *parameters,
                       __global float3 *particles,
                       __global int *histogram,

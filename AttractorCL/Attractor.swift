@@ -8,15 +8,14 @@
 
 import Foundation
 import OpenCL
-//import GLKit
 
 func randomFloat() -> Float {
     return Float(arc4random()) /  Float(UInt32.max)
 }
 
 var numParticles: Int = (1024 * 1024 * 4)
-var sensitivity: Float = 0.003
-var N: Int = 1000
+var sensitivity: Float = 1.4
+var N: Int = (4096 * 2)
 var fN: Float = Float(N)
 
 class Attractor {
@@ -27,31 +26,20 @@ class Attractor {
         var z: Float
     }
     
-    struct Parameter {
-        var s0: Float
-        var s1: Float
-        var s2: Float
-        var s3: Float
-        var s4: Float
-    }
-    
-    var isComputingHistogram: Bool = false
-    var shouldResetParticles: Bool = false
-    
     var parameterA: Float = 2.4 * sensitivity
     var parameterB: Float = -2.3 * sensitivity
     var parameterC: Float = 2.1 * sensitivity
     var parameterD: Float = -2.1 * sensitivity
     
-    var histogram = [Int](count: (N * N), repeatedValue: 0)
-    var colors = [Float](count: (N * N), repeatedValue: 0.0)
-    
-    var parametersPointer: COpaquePointer?
-    var particlesPointer: COpaquePointer?
-    var histogramBuffer: UnsafeMutablePointer<Void>?
-    var histogramPointer: COpaquePointer?
-    var colorsPointer: COpaquePointer?
-    var colorsBuffer: UnsafeMutablePointer<Void>?
+    //    var histogram = [cl_int](count: (N * N), repeatedValue: 0)
+    //    var colors = [cl_float](count: (N * N), repeatedValue: 0.0)
+    //
+    //    var parametersPointer: COpaquePointer?
+    //    var particlesPointer: COpaquePointer?
+    //    var histogramBuffer: UnsafeMutablePointer<Void>?
+    //    var histogramPointer: COpaquePointer?
+    //    var colorsPointer: COpaquePointer?
+    //    var colorsBuffer: UnsafeMutablePointer<Void>?
     
     lazy var queue: dispatch_queue_t = {
         var q = gcl_create_dispatch_queue(cl_queue_flags(CL_DEVICE_TYPE_GPU), nil)
@@ -72,37 +60,36 @@ class Attractor {
         
         dispatch_sync(self.queue) {
             
-            // Only create and upload particles to GPU if needed
-            if (self.shouldResetParticles == true) {
-                
-                self.shouldResetParticles = false
-                
-                var particles = [Particle]()
-                for i in 0...numParticles {
-                    let p = Particle(x: (randomFloat() * fN), y: (randomFloat() * fN), z: (randomFloat() * fN))
-                    particles.append(p)
-                }
-                
-                var particlesBuffer = gcl_malloc(UInt(sizeof(Particle) * numParticles), &particles, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
-                self.particlesPointer = COpaquePointer(particlesBuffer)
-                
-                self.histogram = [Int](count: (N * N), repeatedValue: 0)
-                self.histogramBuffer = gcl_malloc(UInt(sizeof(cl_int) * N * N), &self.histogram, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
-                self.histogramPointer = COpaquePointer(self.histogramBuffer!)
-                
-                self.colors = [Float](count: (N * N), repeatedValue: 0.0)
-                self.colorsBuffer = gcl_malloc(UInt(sizeof(cl_int) * N * N), &self.colors, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
-                self.colorsPointer = COpaquePointer(self.colorsBuffer!)
-                
-                var parameters = Parameter(
-                    s0: self.parameterA * sensitivity,
-                    s1: self.parameterB * sensitivity,
-                    s2: self.parameterC * sensitivity,
-                    s3: self.parameterD * sensitivity,
-                    s4: fN)
-                var parametersBuffer = gcl_malloc(UInt(sizeof(Parameter)), &parameters, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
-                self.parametersPointer = COpaquePointer(parametersBuffer)
+            var particles = [Particle]()
+            for i in 0...numParticles {
+                let p = Particle(x: (randomFloat() * fN), y: (randomFloat() * fN), z: (randomFloat() * fN))
+                particles.append(p)
             }
+            
+            var particlesBuffer = gcl_malloc(UInt(sizeof(Particle) * numParticles), &particles, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
+            var particlesPointer = COpaquePointer(particlesBuffer)
+            gcl_memcpy(particlesBuffer, particles, UInt(sizeof(cl_float) * 3 * numParticles))
+            
+            var histogram = [cl_int](count: (N * N), repeatedValue: 0)
+            var histogramBuffer = gcl_malloc(UInt(sizeof(cl_int) * N * N), &histogram, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
+            var histogramPointer = COpaquePointer(histogramBuffer)
+            gcl_memcpy(histogramBuffer, histogram, UInt(sizeof(cl_int) * N * N))
+            
+            var colors = [cl_float](count: (N * N), repeatedValue: 0.0)
+            var colorsBuffer = gcl_malloc(UInt(sizeof(cl_float) * N * N), &colors, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
+            var colorsPointer = COpaquePointer(colorsBuffer)
+            gcl_memcpy(colorsBuffer, colors, UInt(sizeof(cl_float) * N * N))
+            
+            
+            var parameters = [cl_float](count: 8, repeatedValue: 0.0)
+            parameters[0] = self.parameterA * sensitivity
+            parameters[1] = self.parameterB * sensitivity
+            parameters[2] = self.parameterC * sensitivity
+            parameters[3] = self.parameterD * sensitivity
+            parameters[4] = fN
+            var parametersBuffer = gcl_malloc(UInt(sizeof(cl_float) * 8), &parameters, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
+            var parametersPointer = COpaquePointer(parametersBuffer)
+            gcl_memcpy(parametersBuffer, parameters, UInt(sizeof(cl_float) * 8))
             
             var ndRange = cl_ndrange(
                 work_dim: 1,
@@ -115,12 +102,24 @@ class Attractor {
                 return p
             })
             
-            attractor_kernel(rangePointer, self.parametersPointer!, self.particlesPointer!, UnsafeMutablePointer<cl_int>(self.histogramPointer!), UnsafeMutablePointer<cl_float>(self.colorsPointer!))
+            for i in 0...10 {
+                attractor_kernel(rangePointer, parametersPointer, particlesPointer, UnsafeMutablePointer<cl_int>(histogramPointer), UnsafeMutablePointer<cl_float>(colorsPointer))
+            }
             
-            gcl_memcpy(&self.histogramBuffer, UnsafePointer(self.histogramPointer!), UInt(sizeof(Int) * N * N))
-            gcl_memcpy(&self.colorsBuffer, UnsafePointer(self.colorsPointer!), UInt(sizeof(Float) * N * N))
+            var histogramResult = [cl_int](count: (N * N), repeatedValue: 0)
+            var colorResult = [cl_float](count: (N * N), repeatedValue: 0)
             
-            println("LOL!")
+            gcl_memcpy(&histogramResult, histogramBuffer, UInt(sizeof(cl_int) * N * N))
+            gcl_memcpy(&colorResult, colorsBuffer, UInt(sizeof(cl_float) * N * N))
+            
+            var maxDensity = 0
+            for i in 0...((N * N) - 1) {
+                let density = Int(histogramResult[i])
+                if density > maxDensity {
+                    maxDensity = density
+                }
+            }
+            println("Max density: \(maxDensity)")
         }
     }
     
