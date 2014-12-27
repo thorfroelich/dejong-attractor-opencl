@@ -1,7 +1,7 @@
 kernel void attractor (
                       const __global float8 *parameters,
                       __global float3 *particles,
-                      __global int *histogram,
+                      __global ulong *histogram,
                       __global float *colors
                       )
 {
@@ -37,7 +37,7 @@ kernel void attractor (
     
     if (index >= 0 && index < n*n)
     {
-        int d = histogram[index];
+        ulong d = histogram[index];
         histogram[index] = d + 1;
         
         colors[index] = particle.z;

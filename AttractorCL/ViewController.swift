@@ -8,15 +8,25 @@
 
 import Cocoa
 
+var sensitivity: Float = 0.6
+
 class ViewController: NSViewController {
 
     @IBOutlet weak var imageView: NSImageView!
+    @IBOutlet weak var parameterSliderA: NSSlider!
+    @IBOutlet weak var parameterSliderB: NSSlider!
+    @IBOutlet weak var parameterSliderC: NSSlider!
+    @IBOutlet weak var parameterSliderD: NSSlider!
+    
+    var attractor: Attractor = {
+        var a = Attractor()
+        return a
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        var attractor = Attractor()
-        attractor.initializeCL()
+
+        self.updateAttractorFromSliders()
     }
 
     override var representedObject: AnyObject? {
@@ -24,7 +34,27 @@ class ViewController: NSViewController {
         // Update the view, if already loaded.
         }
     }
+    
+    func updateAttractorFromSliders() {
+        
+        self.attractor.parameterA = (self.parameterSliderA.floatValue * sensitivity)
+        self.attractor.parameterB = (self.parameterSliderB.floatValue * sensitivity)
+        self.attractor.parameterC = (self.parameterSliderC.floatValue * sensitivity)
+        self.attractor.parameterD = (self.parameterSliderD.floatValue * sensitivity)
+        
+        self.attractor.initializeCL()
+        
+        self.attractor.updateParticles()
+        
+        self.attractor.imageFromBuffer { (image: NSImage) -> Void in
+            println("Setting image")
+            self.imageView.image = image
+        }
+    }
 
+    @IBAction func updateButtonPressed(sender: AnyObject) {
+        self.updateAttractorFromSliders()
+    }
 
 }
 
