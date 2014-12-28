@@ -46,17 +46,17 @@ class Attractor {
         var z: Float
     }
     
-    struct RGBColor {
-        var r: Int = 0
-        var g: Int = 0
-        var b: Int = 0
-    }
-    
-    struct HSVColor {
-        var h: Int = 0
-        var s: Int = 0
-        var v: Int = 0
-    }
+//    struct RGBColor {
+//        var r: Int = 0
+//        var g: Int = 0
+//        var b: Int = 0
+//    }
+//    
+//    struct HSVColor {
+//        var h: Int = 0
+//        var s: Int = 0
+//        var v: Int = 0
+//    }
     
 //    lazy var currentBitmapRep: NSBitmapImageRep = {
 //        var rep = self.createNewImageRep()
@@ -104,12 +104,12 @@ class Attractor {
             gcl_memcpy(particlesBuffer, particles, UInt(sizeof(cl_float) * 3 * numParticles))
             
             // Create histogram buffer and pointer
-            var histogram = [cl_ulong](count: (N * N), repeatedValue: 0)
+            var histogram = [cl_ulong](count: (N * N), repeatedValue: cl_ulong(0))
             self.histogramBuffer = gcl_malloc(UInt(sizeof(cl_ulong) * N * N), &histogram, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
             self.histogramPointer = COpaquePointer(self.histogramBuffer!)
 
             // Create color buffer and pointer
-            var colors = [cl_float](count: (N * N), repeatedValue: 0.0)
+            var colors = [cl_float](count: (N * N), repeatedValue: cl_float(0.0))
             self.colorsBuffer = gcl_malloc(UInt(sizeof(cl_float) * N * N), &colors, cl_malloc_flags(CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR))
             self.colorsPointer = COpaquePointer(self.colorsBuffer!)
             
@@ -150,8 +150,8 @@ class Attractor {
         
         dispatch_async(self.queue, { () -> Void in
             
-            var histogramResult = [cl_ulong](count: (N * N), repeatedValue: 0)
-            var colorResult = [cl_float](count: (N * N), repeatedValue: 0)
+            var histogramResult = [cl_ulong](count: (N * N), repeatedValue: cl_ulong(0))
+            var colorResult = [cl_float](count: (N * N), repeatedValue: cl_float(0.0))
             
             gcl_memcpy(&histogramResult, self.histogramBuffer!, UInt(sizeof(cl_ulong) * N * N))
             gcl_memcpy(&colorResult, self.colorsBuffer!, UInt(sizeof(cl_float) * N * N))
@@ -167,30 +167,29 @@ class Attractor {
                 NSGraphicsContext.setCurrentContext(NSGraphicsContext(bitmapImageRep: imageRep))
                 
                 for index in 0..<(N * N) {
+                    
                     let density = Int(histogramResult[index])
+                    if density <= 0 {
+                        continue
+                    }
+                    
                     let color = Float(colorResult[index])
+                    if color.isNaN {
+                        continue
+                    }
                     
                     let x = index % N
                     let y = index / N
                     
                     let logDensity = logf(Float(density))
-                    if logDensity <= 0 {
-                        continue
-                    }
+                    let intensity = logDensity / logMaxDensity
                     
-                    let hue = SLMap(color, 0.0, fN, 0.5, 1.0)
-                    let saturation = SLMap(logDensity / logMaxDensity, 0.0, 1.0, 0.5, 0.0)
-                    let brightness = SLClamp(logDensity / logMaxDensity, 0.0, 1.0)
+                    let r = Int((color * 0.9 + (1.0 - color) * 0.6) * 255.0 * intensity)
+                    let g = Int((color * 0.2 + (1.0 - color) * 0.4) * 255.0 * intensity)
+                    let b = Int((color * 0.5 + (1.0 - color) * 0.9) * 255.0 * intensity)
+                    let a = 255
+                    var pixel: [Int] = [r, g, b, a]
                     
-                    var hsv = HSVColor(h: Int(hue * 255.0), s: Int(saturation * 255.0), v: Int(brightness * 255.0))
-                    var rgb = Attractor.HSBToRGB(hsv)
-
-                    var pixel = [Int](count: 4, repeatedValue: Int(0))
-                    pixel[0] = rgb.r
-                    pixel[1] = rgb.g
-                    pixel[2] = rgb.b
-                    pixel[3] = 255
-
                     imageRep.setPixel(&pixel, atX: x, y: y)
                 }
                 
@@ -217,7 +216,7 @@ class Attractor {
             samplesPerPixel: 4,
             hasAlpha: true,
             isPlanar: false,
-            colorSpaceName: NSCalibratedRGBColorSpace,
+            colorSpaceName: NSDeviceRGBColorSpace,
             bytesPerRow: 4 * N,
             bitsPerPixel: 32)
         
@@ -232,64 +231,64 @@ class Attractor {
         return rep!
     }
     
-    class func HSBToRGB(hsv: HSVColor) -> RGBColor
-    {
-        var rgb = RGBColor(r: 0, g: 0, b: 0)
-        var region: Int
-        var remainder: Int
-        var p: Int
-        var q: Int
-        var t: Int
-        
-        if (hsv.s == 0)
-        {
-            rgb.r = hsv.v
-            rgb.g = hsv.v
-            rgb.b = hsv.v
-            return rgb
-        }
-        
-        region = hsv.h / 43
-        remainder = (hsv.h - (region * 43)) * 6
-        
-        p = (hsv.v * (255 - hsv.s)) >> 8
-        q = (hsv.v * (255 - ((hsv.s * remainder) >> 8))) >> 8
-        t = (hsv.v * (255 - ((hsv.s * (255 - remainder)) >> 8))) >> 8
-        
-        switch (region)
-        {
-        case 0:
-            rgb.r = hsv.v
-            rgb.g = t
-            rgb.b = p;
-            break;
-        case 1:
-            rgb.r = q
-            rgb.g = hsv.v
-            rgb.b = p
-            break;
-        case 2:
-            rgb.r = p
-            rgb.g = hsv.v
-            rgb.b = t
-            break;
-        case 3:
-            rgb.r = p
-            rgb.g = q
-            rgb.b = hsv.v
-            break;
-        case 4:
-            rgb.r = t
-            rgb.g = p
-            rgb.b = hsv.v
-            break;
-        default:
-            rgb.r = hsv.v
-            rgb.g = p
-            rgb.b = q
-            break;
-        }
-        
-        return rgb
-    }
+//    class func HSBToRGB(hsv: HSVColor) -> RGBColor
+//    {
+//        var rgb = RGBColor(r: 0, g: 0, b: 0)
+//        var region: Int
+//        var remainder: Int
+//        var p: Int
+//        var q: Int
+//        var t: Int
+//        
+//        if (hsv.s == 0)
+//        {
+//            rgb.r = hsv.v
+//            rgb.g = hsv.v
+//            rgb.b = hsv.v
+//            return rgb
+//        }
+//        
+//        region = hsv.h / 43
+//        remainder = (hsv.h - (region * 43)) * 6
+//        
+//        p = (hsv.v * (255 - hsv.s)) >> 8
+//        q = (hsv.v * (255 - ((hsv.s * remainder) >> 8))) >> 8
+//        t = (hsv.v * (255 - ((hsv.s * (255 - remainder)) >> 8))) >> 8
+//        
+//        switch (region)
+//        {
+//        case 0:
+//            rgb.r = hsv.v
+//            rgb.g = t
+//            rgb.b = p;
+//            break;
+//        case 1:
+//            rgb.r = q
+//            rgb.g = hsv.v
+//            rgb.b = p
+//            break;
+//        case 2:
+//            rgb.r = p
+//            rgb.g = hsv.v
+//            rgb.b = t
+//            break;
+//        case 3:
+//            rgb.r = p
+//            rgb.g = q
+//            rgb.b = hsv.v
+//            break;
+//        case 4:
+//            rgb.r = t
+//            rgb.g = p
+//            rgb.b = hsv.v
+//            break;
+//        default:
+//            rgb.r = hsv.v
+//            rgb.g = p
+//            rgb.b = q
+//            break;
+//        }
+//        
+//        return rgb
+//    }
 }

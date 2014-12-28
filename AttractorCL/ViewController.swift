@@ -11,7 +11,6 @@ import Cocoa
 class ViewController: NSViewController {
 
     @IBOutlet weak var imageView: NSImageView!
-    @IBOutlet weak var sensitivitySlider: NSSlider!
     @IBOutlet weak var parameterSliderA: NSSlider!
     @IBOutlet weak var parameterSliderB: NSSlider!
     @IBOutlet weak var parameterSliderC: NSSlider!
@@ -25,7 +24,7 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.updateAttractorFromSliders()
+        self.updateAttractorSettingsFromSliders()
     }
 
     override var representedObject: AnyObject? {
@@ -34,15 +33,18 @@ class ViewController: NSViewController {
         }
     }
     
-    func updateAttractorFromSliders() {
+    func updateAttractorSettingsFromSliders() {
         
-        let sensitivity = self.sensitivitySlider.floatValue
-        self.attractor.parameterA = (self.parameterSliderA.floatValue * sensitivity)
-        self.attractor.parameterB = (self.parameterSliderB.floatValue * sensitivity)
-        self.attractor.parameterC = (self.parameterSliderC.floatValue * sensitivity)
-        self.attractor.parameterD = (self.parameterSliderD.floatValue * sensitivity)
+        self.attractor.parameterA = self.parameterSliderA.floatValue
+        self.attractor.parameterB = self.parameterSliderB.floatValue
+        self.attractor.parameterC = self.parameterSliderC.floatValue
+        self.attractor.parameterD = self.parameterSliderD.floatValue
         
         self.attractor.initializeCL()
+        self.updateAttractorAndRender()
+    }
+    
+    func updateAttractorAndRender() {
         
         for i in 0...100 {
             self.attractor.updateParticles()
@@ -55,8 +57,11 @@ class ViewController: NSViewController {
     }
 
     @IBAction func updateButtonPressed(sender: AnyObject) {
-        self.updateAttractorFromSliders()
+        self.updateAttractorSettingsFromSliders()
     }
 
+    @IBAction func repeatButtonPressed(sender: AnyObject) {
+        self.updateAttractorAndRender()
+    }
 }
 

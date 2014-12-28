@@ -673,23 +673,23 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Dfq-ve-QqO">
-                                <rect key="frame" x="20" y="177" width="800" height="564"/>
+                                <rect key="frame" x="20" y="141" width="800" height="600"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" id="kbx-Ie-kq6"/>
                             </imageView>
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4V9-HW-xVb">
-                                <rect key="frame" x="154" y="111" width="531" height="20"/>
+                                <rect key="frame" x="154" y="114" width="531" height="21"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="-2.5" maxValue="2.5" doubleValue="1.3999999999999999" tickMarkPosition="above" sliderType="linear" id="gSZ-2U-qV5"/>
                             </slider>
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KkF-bZ-YLu">
-                                <rect key="frame" x="154" y="89" width="531" height="20"/>
+                                <rect key="frame" x="154" y="91" width="531" height="21"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="-2.5" maxValue="2.5" doubleValue="-2.2999999999999998" tickMarkPosition="above" sliderType="linear" id="dvS-hJ-cXB"/>
                             </slider>
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rDx-zV-A20">
-                                <rect key="frame" x="154" y="67" width="531" height="20"/>
+                                <rect key="frame" x="154" y="68" width="531" height="21"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="-2.5" maxValue="2.5" doubleValue="2.3999999999999999" tickMarkPosition="above" sliderType="linear" id="Pux-1y-epV"/>
                             </slider>
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h1J-x3-EHy">
-                                <rect key="frame" x="154" y="45" width="531" height="20"/>
+                                <rect key="frame" x="154" y="45" width="531" height="21"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="-2.5" maxValue="2.5" doubleValue="-2.1000000000000001" tickMarkPosition="above" sliderType="linear" id="ggG-7a-7wL"/>
                             </slider>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="f2Q-iZ-asD">
@@ -702,10 +702,19 @@
                                     <action selector="updateButtonPressed:" target="XfG-lQ-9wD" id="tMI-kM-fuZ"/>
                                 </connections>
                             </button>
-                            <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bYq-SC-lrq">
-                                <rect key="frame" x="154" y="151" width="531" height="20"/>
-                                <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="0.01" doubleValue="0.0050000000000000001" tickMarkPosition="above" sliderType="linear" id="Vl8-eU-aRf"/>
-                            </slider>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TH2-pU-EjW">
+                                <rect key="frame" x="577" y="13" width="112" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="GI4-gt-gpa"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Repeat" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dl7-YT-ab9">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="repeatButtonPressed:" target="XfG-lQ-9wD" id="2CB-iA-3J9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="KkF-bZ-YLu" firstAttribute="top" secondItem="4V9-HW-xVb" secondAttribute="bottom" constant="6" id="05S-ut-l0b"/>
@@ -718,20 +727,19 @@
                             <constraint firstItem="rDx-zV-A20" firstAttribute="top" secondItem="KkF-bZ-YLu" secondAttribute="bottom" constant="6" id="89J-9d-IPC"/>
                             <constraint firstAttribute="trailing" secondItem="rDx-zV-A20" secondAttribute="trailing" constant="157" id="8X0-cf-jQi"/>
                             <constraint firstItem="h1J-x3-EHy" firstAttribute="leading" secondItem="BZg-3A-aVK" secondAttribute="leading" constant="156" id="BVc-sf-nO4"/>
-                            <constraint firstItem="bYq-SC-lrq" firstAttribute="leading" secondItem="BZg-3A-aVK" secondAttribute="leading" constant="156" id="Dmt-Aw-PgW"/>
+                            <constraint firstAttribute="trailing" secondItem="TH2-pU-EjW" secondAttribute="trailing" constant="157" id="DWV-II-P1R"/>
                             <constraint firstItem="Dfq-ve-QqO" firstAttribute="top" secondItem="BZg-3A-aVK" secondAttribute="top" constant="20" id="GzQ-fB-GEe"/>
+                            <constraint firstItem="4V9-HW-xVb" firstAttribute="top" secondItem="Dfq-ve-QqO" secondAttribute="bottom" constant="8" id="Qc7-5h-zbI"/>
                             <constraint firstItem="f2Q-iZ-asD" firstAttribute="top" secondItem="h1J-x3-EHy" secondAttribute="bottom" constant="6" id="VNv-Oj-Vqt"/>
-                            <constraint firstItem="4V9-HW-xVb" firstAttribute="top" secondItem="bYq-SC-lrq" secondAttribute="bottom" constant="24" id="XFR-zX-tOh"/>
                             <constraint firstItem="4V9-HW-xVb" firstAttribute="leading" secondItem="BZg-3A-aVK" secondAttribute="leading" constant="156" id="eCH-aD-isn"/>
                             <constraint firstAttribute="trailing" secondItem="h1J-x3-EHy" secondAttribute="trailing" constant="157" id="f7E-EG-aVF"/>
-                            <constraint firstAttribute="trailing" secondItem="bYq-SC-lrq" secondAttribute="trailing" constant="157" id="fnE-EC-pE2"/>
                             <constraint firstAttribute="trailing" secondItem="4V9-HW-xVb" secondAttribute="trailing" constant="157" id="gdX-Pz-nLz"/>
                             <constraint firstAttribute="trailing" secondItem="Dfq-ve-QqO" secondAttribute="trailing" constant="20" id="kMp-Lt-3nG"/>
                             <constraint firstItem="rDx-zV-A20" firstAttribute="top" secondItem="KkF-bZ-YLu" secondAttribute="bottom" constant="6" id="mFO-Xj-dNx"/>
                             <constraint firstItem="KkF-bZ-YLu" firstAttribute="top" secondItem="4V9-HW-xVb" secondAttribute="bottom" constant="6" id="oRC-QC-Zv9"/>
                             <constraint firstAttribute="bottom" secondItem="f2Q-iZ-asD" secondAttribute="bottom" constant="20" id="qOU-Ke-bd1"/>
                             <constraint firstAttribute="centerX" secondItem="f2Q-iZ-asD" secondAttribute="centerX" id="s4m-qD-A0v"/>
-                            <constraint firstItem="bYq-SC-lrq" firstAttribute="top" secondItem="Dfq-ve-QqO" secondAttribute="bottom" constant="8" id="wQH-BE-vwn"/>
+                            <constraint firstAttribute="bottom" secondItem="TH2-pU-EjW" secondAttribute="bottom" constant="20" id="yO3-2x-j6Q"/>
                             <constraint firstItem="rDx-zV-A20" firstAttribute="leading" secondItem="BZg-3A-aVK" secondAttribute="leading" constant="156" id="zau-mG-Np7"/>
                         </constraints>
                     </view>
@@ -741,7 +749,6 @@
                         <outlet property="parameterSliderB" destination="KkF-bZ-YLu" id="3gL-bT-LvK"/>
                         <outlet property="parameterSliderC" destination="rDx-zV-A20" id="2Qs-y8-XCl"/>
                         <outlet property="parameterSliderD" destination="h1J-x3-EHy" id="5Fv-QO-V3J"/>
-                        <outlet property="sensitivitySlider" destination="bYq-SC-lrq" id="VMb-FH-SqY"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
