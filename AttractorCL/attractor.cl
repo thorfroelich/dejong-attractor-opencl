@@ -1,7 +1,7 @@
 kernel void attractor (
                       const __global float8 *parameters,
                       __global float3 *particles,
-                      __global ulong *histogram,
+                      __global uint *histogram,
                       __global float *colors
                       )
 {
@@ -13,12 +13,6 @@ kernel void attractor (
     float previousX = particle.x;
     
     // Position
-    const float scaleFactor = 0.2;
-    
-//    particle.z = ((sin(0.7 * particle.x) - cos(-1.1 * particle.z)) * fN * scaleFactor) + fN/2.0;
-//    particle.x = ((sin(parameters->s0 * particle.y) - cos(parameters->s1 * particle.x)) * fN * scaleFactor) + fN/2.0;
-//    particle.y = ((sin(parameters->s2 * particle.x) - cos(parameters->s3 * particle.y)) * fN * scaleFactor) + fN/2.0;
-
     float x = particle.x;
     float y = particle.y;
     float z = particle.z;
@@ -27,11 +21,6 @@ kernel void attractor (
     particle.y = sin(parameters->s2 * x) - cos(parameters->s3 * y);
     particle.z = sin(0.7 * x) - cos(-1.1 * z);
     
-    // Color
-//    float newColor = clamp((float)sin(parameters->s0 * particle.x) - sin(parameters->s4 * particle.y), (float)0.0, (float)1.0);
-//    float oldColor = particle.z;
-//    particle.z = (newColor + oldColor) / 2.0;
-    
     particles[gid] = particle;
     
     // Histogram
@@ -39,13 +28,14 @@ kernel void attractor (
     coordinate.x = particle.x;
     coordinate.y = particle.y;
     
+    const float scaleFactor = 0.2;
     int iX = (int)((coordinate.x * fN * scaleFactor) + fN/2.0);
     int iY = (int)((coordinate.y * fN * scaleFactor) + fN/2.0);
     int index = iY * N + iX;
     
     if (index >= 0 && index < N*N)
     {
-        ulong d = histogram[index];
+        uint d = histogram[index];
         histogram[index] = d + 1;
         
         colors[index] = particle.z;
