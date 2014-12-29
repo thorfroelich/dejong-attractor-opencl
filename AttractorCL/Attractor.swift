@@ -9,7 +9,7 @@
 import Cocoa
 import OpenCL
 
-var numParticles: Int = (8192 * 2)
+var numParticles: Int = (8192 * 1)
 var N: Int = 4096
 var fN: Float = Float(N)
 
@@ -60,6 +60,8 @@ class Attractor {
     var particlesPointer: COpaquePointer?
     var histogramBuffer: UnsafeMutablePointer<Void>?
     var histogramPointer: COpaquePointer?
+    var maxDensityBuffer: UnsafeMutablePointer<Void>?
+    var maxDensityPointer: COpaquePointer?
     var colorsPointer: COpaquePointer?
     var colorsBuffer: UnsafeMutablePointer<Void>?
     
@@ -71,20 +73,6 @@ class Attractor {
         if (q == nil) {
             q = gcl_create_dispatch_queue(cl_queue_flags(CL_DEVICE_TYPE_CPU), nil)
         }
-        
-//        var name = [CChar](count: 128, repeatedValue: 0)
-//        name.reserveCapacity(128)
-//        
-//        var nameSize : UInt = 0
-//        let gpu = gcl_get_device_id_with_dispatch_queue(q)
-//        if clGetDeviceInfo(gpu, cl_device_info(CL_DEVICE_NAME), UInt(128), &name, &nameSize) == CL_SUCCESS {
-//            let deviceName = String(
-//            let deviceName = withUnsafePointer(&name) {
-//                String.fromCString(UnsafePointer($0))!
-//            }
-//            println(deviceName)
-//        }
-        
         return q
         }()
     
@@ -113,6 +101,11 @@ class Attractor {
             var histogram = [cl_uint](count: (N * N), repeatedValue: cl_uint(0))
             self.histogramBuffer = gcl_malloc(UInt(sizeof(cl_uint) * N * N), &histogram, cl_malloc_flags(CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR))
             self.histogramPointer = COpaquePointer(self.histogramBuffer!)
+            
+            // Create histogram buffer and pointer
+            var maxDensity = [cl_uint](count: 1, repeatedValue: cl_uint(0))
+            self.maxDensityBuffer = gcl_malloc(UInt(sizeof(cl_uint)), &maxDensity, cl_malloc_flags(CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR))
+            self.maxDensityPointer = COpaquePointer(self.maxDensityBuffer!)
 
             // Create color buffer and pointer
             var colors = [cl_float](count: (N * N), repeatedValue: cl_float(0.0))
@@ -134,6 +127,8 @@ class Attractor {
                 gcl_free(particlesBuffer)
                 gcl_free(self.histogramBuffer!)
                 self.histogramBuffer = nil
+                gcl_free(self.maxDensityBuffer!)
+                self.maxDensityBuffer = nil
                 gcl_free(self.colorsBuffer!)
                 self.colorsBuffer = nil
                 gcl_free(parametersBuffer)
@@ -157,7 +152,7 @@ class Attractor {
             })
             
             for i in 0..<(iterations) {
-                attractor_kernel(rangePointer, self.parametersPointer!, self.particlesPointer!, UnsafeMutablePointer<cl_uint>(self.histogramPointer!), UnsafeMutablePointer<cl_float>(self.colorsPointer!))
+                attractor_kernel(rangePointer, self.parametersPointer!, self.particlesPointer!, UnsafeMutablePointer<cl_uint>(self.histogramPointer!), UnsafeMutablePointer<cl_uint>(self.maxDensityPointer!), UnsafeMutablePointer<cl_float>(self.colorsPointer!))
             }
         })
     }
@@ -167,18 +162,20 @@ class Attractor {
         dispatch_async(self.queue, { () -> Void in
             
             var histogramResult = [cl_uint](count: (N * N), repeatedValue: cl_uint(0))
+            var maxDensityResult = [cl_uint](count: 1, repeatedValue: cl_uint(0))
             var colorResult = [cl_float](count: (N * N), repeatedValue: cl_float(0.0))
             
             gcl_memcpy(&histogramResult, self.histogramBuffer!, UInt(sizeof(cl_uint) * N * N))
+            gcl_memcpy(&maxDensityResult, self.maxDensityBuffer!, UInt(sizeof(cl_uint)))
             gcl_memcpy(&colorResult, self.colorsBuffer!, UInt(sizeof(cl_float) * N * N))
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
                 
-                let maxDensity = maxElement(histogramResult)
+                let maxDensity = maxDensityResult[0]
                 println("Max density: \(maxDensity)")
                 let logMaxDensity = logf(Float(maxDensity))
                 
-                var imageRep = self.createNewImageRep()
+                var imageRep = Attractor.createNewImageRep()
                 NSGraphicsContext.saveGraphicsState()
                 NSGraphicsContext.setCurrentContext(NSGraphicsContext(bitmapImageRep: imageRep))
                 
@@ -223,7 +220,7 @@ class Attractor {
         })
     }
     
-    func createNewImageRep() -> NSBitmapImageRep {
+    class func createNewImageRep() -> NSBitmapImageRep {
         
         var rep = NSBitmapImageRep(bitmapDataPlanes: nil,
             pixelsWide: N,
