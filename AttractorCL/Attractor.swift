@@ -9,8 +9,8 @@
 import Cocoa
 import OpenCL
 
-var numParticles: Int = (1024 * 1024 * 4)
-var N: Int = 1024
+var numParticles: Int = (8192 * 2)
+var N: Int = 4096
 var fN: Float = Float(N)
 
 func randomFloat() -> Float {
@@ -67,7 +67,7 @@ class Attractor {
     
     lazy var queue: dispatch_queue_t = {
         var q = gcl_create_dispatch_queue(cl_queue_flags(CL_DEVICE_TYPE_GPU), nil)
-        
+
         if (q == nil) {
             q = gcl_create_dispatch_queue(cl_queue_flags(CL_DEVICE_TYPE_CPU), nil)
         }
@@ -141,7 +141,7 @@ class Attractor {
         }
     }
     
-    func updateParticles() {
+    func updateParticles(iterations: Int) {
         
         dispatch_sync(self.queue, { () -> Void in
             
@@ -156,7 +156,9 @@ class Attractor {
                 return p
             })
             
-            attractor_kernel(rangePointer, self.parametersPointer!, self.particlesPointer!, UnsafeMutablePointer<cl_uint>(self.histogramPointer!), UnsafeMutablePointer<cl_float>(self.colorsPointer!))
+            for i in 0..<(iterations) {
+                attractor_kernel(rangePointer, self.parametersPointer!, self.particlesPointer!, UnsafeMutablePointer<cl_uint>(self.histogramPointer!), UnsafeMutablePointer<cl_float>(self.colorsPointer!))
+            }
         })
     }
     
