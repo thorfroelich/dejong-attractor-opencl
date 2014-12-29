@@ -187,9 +187,6 @@ class Attractor {
                     }
                     
                     let color = Float(colorResult[index])
-                    if color.isNaN {
-                        continue
-                    }
                     
                     let x = index % N
                     let y = index / N

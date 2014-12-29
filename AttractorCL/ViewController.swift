@@ -46,7 +46,7 @@ class ViewController: NSViewController {
     
     func updateAttractorAndRender() {
         
-        self.attractor.updateParticles(1000)
+        self.attractor.updateParticles(5000)
         
         self.attractor.imageFromBuffer { (image: NSImage) -> Void in
             println("Setting image")
