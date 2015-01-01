@@ -46,11 +46,6 @@ class Attractor {
         var z: Float
     }
     
-//    lazy var currentBitmapRep: NSBitmapImageRep = {
-//        var rep = self.createNewImageRep()
-//        return rep
-//        }()
-    
     var parameterA: Float = 0.0
     var parameterB: Float = 0.0
     var parameterC: Float = 0.0
@@ -69,7 +64,6 @@ class Attractor {
     
     lazy var queue: dispatch_queue_t = {
         var q = gcl_create_dispatch_queue(cl_queue_flags(CL_DEVICE_TYPE_GPU), nil)
-
         if (q == nil) {
             q = gcl_create_dispatch_queue(cl_queue_flags(CL_DEVICE_TYPE_CPU), nil)
         }
@@ -159,56 +153,40 @@ class Attractor {
     
     func imageFromBuffer(completionHandler: ((NSImage) -> Void)!) {
         
-        dispatch_async(self.queue, { () -> Void in
+        var format = cl_image_format(image_channel_order: cl_uint(CL_RGBA), image_channel_data_type: cl_uint(CL_UNSIGNED_INT8))
+        var output_image = gcl_create_image(&format, UInt(N), UInt(N), 0, nil)
+        
+        dispatch_sync(self.queue, { () -> Void in
             
-            var histogramResult = [cl_uint](count: (N * N), repeatedValue: cl_uint(0))
-            var maxDensityResult = [cl_uint](count: 1, repeatedValue: cl_uint(0))
-            var colorResult = [cl_float](count: (N * N), repeatedValue: cl_float(0.0))
+            var ndRange = cl_ndrange(
+                work_dim: 2,
+                global_work_offset: (0, 0, 0),
+                global_work_size: (UInt(N), UInt(N), 0),
+                local_work_size: (0, 0, 0)
+            )
+            var rangePointer = withUnsafePointer(&ndRange, { (p: UnsafePointer<cl_ndrange>) -> UnsafePointer<cl_ndrange> in
+                return p
+            })
             
-            gcl_memcpy(&histogramResult, self.histogramBuffer!, UInt(sizeof(cl_uint) * N * N))
-            gcl_memcpy(&maxDensityResult, self.maxDensityBuffer!, UInt(sizeof(cl_uint)))
-            gcl_memcpy(&colorResult, self.colorsBuffer!, UInt(sizeof(cl_float) * N * N))
+            histogram_render_kernel(
+                rangePointer,
+                UnsafeMutablePointer<cl_uint>(self.histogramPointer!),
+                UnsafeMutablePointer<cl_float>(self.colorsPointer!),
+                UnsafeMutablePointer<cl_uint>(self.maxDensityPointer!),
+                cl_uint(N),
+                output_image)
+            
+            var pixels = UnsafeMutablePointer<UInt8>.alloc(N * N * 4)
+            var origin = [UInt(0), UInt(0), UInt(0)]
+            var region = [UInt(N), UInt(N), UInt(1)]
+            
+            gcl_copy_image_to_ptr(pixels, output_image, &origin, &region)
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
                 
-                let maxDensity = maxDensityResult[0]
-                println("Max density: \(maxDensity)")
-                let logMaxDensity = logf(Float(maxDensity))
-                
-                var imageRep = Attractor.createNewImageRep()
-                NSGraphicsContext.saveGraphicsState()
-                NSGraphicsContext.setCurrentContext(NSGraphicsContext(bitmapImageRep: imageRep))
-                
-                for index in 0..<(N * N) {
-                    
-                    let density = Int(histogramResult[index])
-                    if density <= 0 {
-                        continue
-                    }
-                    
-                    let color = Float(colorResult[index])
-                    
-                    let x = index % N
-                    let y = index / N
-                    
-                    let logDensity = logf(Float(density))
-                    let intensity = logDensity / logMaxDensity
-                    
-                    let r = Int((color * 0.9 + (1.0 - color) * 0.6) * 255.0 * intensity)
-                    let g = Int((color * 0.2 + (1.0 - color) * 0.4) * 255.0 * intensity)
-                    let b = Int((color * 0.5 + (1.0 - color) * 0.9) * 255.0 * intensity)
-                    let a = 255
-                    var pixel: [Int] = [r, g, b, a]
-                    
-                    imageRep.setPixel(&pixel, atX: x, y: y)
-                }
-                
-                let image = NSImage(size: NSSize(width: N, height: N))
+                var imageRep = Attractor.createNewImageRep(&pixels)
+                var image = NSImage(size: imageRep.size)
                 image.addRepresentation(imageRep)
-                
-                NSGraphicsContext.restoreGraphicsState()
-                
-//                self.currentBitmapRep = imageRep
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     completionHandler(image)
@@ -217,9 +195,9 @@ class Attractor {
         })
     }
     
-    class func createNewImageRep() -> NSBitmapImageRep {
+    class func createNewImageRep(planes: UnsafeMutablePointer<UnsafeMutablePointer<UInt8>>) -> NSBitmapImageRep {
         
-        var rep = NSBitmapImageRep(bitmapDataPlanes: nil,
+        var rep = NSBitmapImageRep(bitmapDataPlanes: planes,
             pixelsWide: N,
             pixelsHigh: N,
             bitsPerSample: 8,
@@ -229,14 +207,6 @@ class Attractor {
             colorSpaceName: NSDeviceRGBColorSpace,
             bytesPerRow: 4 * N,
             bitsPerPixel: 32)
-        
-        NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.setCurrentContext(NSGraphicsContext(bitmapImageRep: rep!))
-        
-        NSColor.blackColor().setFill()
-        NSRectFill(NSRect(x: 0, y: 0, width: N, height: N))
-        
-        NSGraphicsContext.restoreGraphicsState()
         
         return rep!
     }

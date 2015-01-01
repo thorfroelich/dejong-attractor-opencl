@@ -13,6 +13,7 @@
 		4311AF5F1A4CAB52007A0A93 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4311AF5D1A4CAB52007A0A93 /* Main.storyboard */; };
 		4311AF6B1A4CAB52007A0A93 /* AttractorCLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4311AF6A1A4CAB52007A0A93 /* AttractorCLTests.swift */; };
 		4311AF771A4CAC0F007A0A93 /* Attractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4311AF751A4CAC0F007A0A93 /* Attractor.swift */; };
+		433A13631A5438AF0003B29A /* render.cl in Sources */ = {isa = PBXBuildFile; fileRef = 433A13621A5438AF0003B29A /* render.cl */; };
 		439DB4BF1A4EBD0900199362 /* attractor.cl in Sources */ = {isa = PBXBuildFile; fileRef = 439DB4BE1A4EBD0900199362 /* attractor.cl */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +38,7 @@
 		4311AF691A4CAB52007A0A93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4311AF6A1A4CAB52007A0A93 /* AttractorCLTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttractorCLTests.swift; sourceTree = "<group>"; };
 		4311AF751A4CAC0F007A0A93 /* Attractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attractor.swift; sourceTree = "<group>"; };
+		433A13621A5438AF0003B29A /* render.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = render.cl; sourceTree = "<group>"; };
 		439DB4BE1A4EBD0900199362 /* attractor.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = attractor.cl; sourceTree = "<group>"; };
 		439DB4C01A4EBD4100199362 /* AttractorCL-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AttractorCL-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -82,6 +84,7 @@
 			children = (
 				439DB4C01A4EBD4100199362 /* AttractorCL-Bridging-Header.h */,
 				439DB4BE1A4EBD0900199362 /* attractor.cl */,
+				433A13621A5438AF0003B29A /* render.cl */,
 				4311AF751A4CAC0F007A0A93 /* Attractor.swift */,
 				4311AF571A4CAB52007A0A93 /* AppDelegate.swift */,
 				4311AF591A4CAB52007A0A93 /* ViewController.swift */,
@@ -216,6 +219,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				433A13631A5438AF0003B29A /* render.cl in Sources */,
 				4311AF5A1A4CAB52007A0A93 /* ViewController.swift in Sources */,
 				439DB4BF1A4EBD0900199362 /* attractor.cl in Sources */,
 				4311AF771A4CAC0F007A0A93 /* Attractor.swift in Sources */,

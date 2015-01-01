@@ -3,3 +3,4 @@
 //
 
 #include "attractor.cl.h"
+#include "render.cl.h"
