@@ -9,33 +9,12 @@
 import Cocoa
 import OpenCL
 
-var numParticles: Int = (8192 * 1)
+var numParticles: Int = 8192
 var N: Int = 4096
 var fN: Float = Float(N)
 
 func randomFloat() -> Float {
     return Float(arc4random()) /  Float(UInt32.max)
-}
-
-func SLNormalize(value: Float, minimum: Float, maximum: Float) -> Float
-{
-    return (value - minimum) / (maximum - minimum);
-}
-
-// Takes a value from 0 to 1 and a range and returns the interpolated value in that range.
-func SLInterpolate(normValue: Float, from: Float, to: Float) -> Float
-{
-    return from + (to - from) * normValue;
-}
-
-//map(value, min1, max1, min2, max2) takes a value in a given range (min1, max1) and finds the corresonding value in the next range(min2, max2).
-func SLMap(value: Float, min1: Float, max1: Float, min2: Float, max2: Float) -> Float
-{
-    return SLInterpolate(SLNormalize(value, min1, max1), min2, max2);
-}
-
-func SLClamp(value: Float, min: Float, max: Float) -> Float {
-    return value < min ? min : (value > max ? max : value)
 }
 
 class Attractor {

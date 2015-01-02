@@ -1,10 +1,8 @@
-kernel void attractor (
-                      const __global float8 *parameters,
+kernel void attractor (const __global float8 *parameters,
                       __global float3 *particles,
                       __global uint *histogram,
                        __global uint *maxDensity,
-                      __global float *colors
-                      )
+                      __global float *colors)
 {
     float fN = parameters->s4;
     int N = (int)fN;
